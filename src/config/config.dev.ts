@@ -5,7 +5,7 @@ export const config: WorkloadConfig = {
     account: "937168356724",
     region: "us-east-1",
   },
-  vpcCidrBlock: "10.5.0.0/6",
+  vpcCidrBlock: "10.5.0.0/16",
   maxAzs: 2,
   domainName: "demosfelipetrindade.lat",
   appSubdomain: "app",
