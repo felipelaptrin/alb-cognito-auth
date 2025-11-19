@@ -1,12 +1,12 @@
-import { AwsAccount, WorkloadConfig } from "./types";
+import { WorkloadConfig } from "./types";
 
 export const config: WorkloadConfig = {
   env: {
-    account: AwsAccount.Development,
+    account: "937168356724",
     region: "us-east-1",
   },
   vpcCidrBlock: "10.5.0.0/6",
   maxAzs: 2,
-  domainName: "sandbox.lokadevops.com",
+  domainName: "demosfelipetrindade.lat",
   appSubdomain: "app",
 };
