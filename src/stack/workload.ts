@@ -139,7 +139,7 @@ export class WorkloadStack extends cdk.Stack {
         certificate: this.certificate,
         domainName: COGNITO_DOMAIN,
       },
-      managedLoginVersion: cognito.ManagedLoginVersion.NEWER_MANAGED_LOGIN,
+      managedLoginVersion: cognito.ManagedLoginVersion.CLASSIC_HOSTED_UI,
     });
     userPoolDomain.node.addDependency(dummyARecordParentDomain);
 

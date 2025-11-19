@@ -467,7 +467,7 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
           },
         },
         "Domain": "auth.demosfelipetrindade.lat",
-        "ManagedLoginVersion": 2,
+        "ManagedLoginVersion": 1,
         "UserPoolId": {
           "Ref": "CognitoAuthUserPool67837014",
         },
