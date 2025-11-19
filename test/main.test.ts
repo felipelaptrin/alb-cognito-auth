@@ -1,7 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import "jest-cdk-snapshot";
 
-import { WorkloadStack } from "../src/stack";
+import { WorkloadStack } from "../src/stack/workload";
 import { devWorkloadConfig } from "../src/config";
 
 test("[DEV] Snapshot test for WorkloadStack", () => {

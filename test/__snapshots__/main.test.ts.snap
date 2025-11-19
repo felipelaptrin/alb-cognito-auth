@@ -2,7 +2,87 @@
 
 exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
 {
+  "Mappings": {
+    "AWSCloudFrontPartitionHostedZoneIdMap": {
+      "aws": {
+        "zoneId": "Z2FDTNDATAQYW2",
+      },
+      "aws-cn": {
+        "zoneId": "Z3RFFRIM2A3IF5",
+      },
+    },
+  },
   "Resources": {
+    "AWS679f53fac002430cb0da5b7982bd22872D164C4C": {
+      "DependsOn": [
+        "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+      ],
+      "Properties": {
+        "Code": Any<Object>,
+        "Handler": "index.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+            "Arn",
+          ],
+        },
+        "Runtime": "nodejs22.x",
+        "Timeout": 120,
+      },
+      "Type": "AWS::Lambda::Function",
+    },
+    "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "AppTargetGroup3D716DB6": {
+      "Properties": {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "deregistration_delay.timeout_seconds",
+            "Value": "10",
+          },
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
     "AuthlessAppRecord8DD231C1": {
       "Properties": {
         "AliasTarget": {
@@ -32,27 +112,6 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
         "Type": "A",
       },
       "Type": "AWS::Route53::RecordSet",
-    },
-    "AuthlessAppTargetGroupC33B84FD": {
-      "Properties": {
-        "Port": 80,
-        "Protocol": "HTTP",
-        "TargetGroupAttributes": [
-          {
-            "Key": "deregistration_delay.timeout_seconds",
-            "Value": "10",
-          },
-          {
-            "Key": "stickiness.enabled",
-            "Value": "false",
-          },
-        ],
-        "TargetType": "ip",
-        "VpcId": {
-          "Ref": "Vpc8378EB38",
-        },
-      },
-      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
     },
     "AuthlessAppTaskDefinitionE0919B74": {
       "Properties": {
@@ -186,7 +245,7 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
     "AuthlessFargateService5FFD6D8F": {
       "DependsOn": [
         "AuthlessAppTaskDefinitionTaskRole9249C877",
-        "PublicAlbHttpsListenerAuthlessAppRuleRule9D412DB8",
+        "PublicAlbHttpsListenerAppRuleRuleEE3C13C0",
       ],
       "Properties": {
         "Cluster": {
@@ -210,7 +269,7 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
             "ContainerName": "nginx",
             "ContainerPort": 80,
             "TargetGroupArn": {
-              "Ref": "AuthlessAppTargetGroupC33B84FD",
+              "Ref": "AppTargetGroup3D716DB6",
             },
           },
         ],
@@ -284,6 +343,211 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroupIngress",
     },
+    "CognitoAuthAliasRecord6E72C42D": {
+      "Properties": {
+        "AliasTarget": {
+          "DNSName": {
+            "Fn::GetAtt": [
+              "CognitoAuthUserPoolDomainCloudFrontDomainName418E469E",
+              "DomainDescription.CloudFrontDistribution",
+            ],
+          },
+          "HostedZoneId": {
+            "Fn::FindInMap": [
+              "AWSCloudFrontPartitionHostedZoneIdMap",
+              {
+                "Ref": "AWS::Partition",
+              },
+              "zoneId",
+            ],
+          },
+        },
+        "HostedZoneId": "DUMMY",
+        "Name": "auth.demosfelipetrindade.lat.",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "CognitoAuthClientDF50989C": {
+      "Properties": {
+        "AllowedOAuthFlows": [
+          "implicit",
+          "code",
+        ],
+        "AllowedOAuthFlowsUserPoolClient": true,
+        "AllowedOAuthScopes": [
+          "openid",
+        ],
+        "CallbackURLs": [
+          "https://app.demosfelipetrindade.lat/oauth2/idpresponse",
+          "https://app.demosfelipetrindade.lat",
+        ],
+        "GenerateSecret": true,
+        "LogoutURLs": [
+          "https://app.demosfelipetrindade.lat",
+        ],
+        "SupportedIdentityProviders": [
+          "COGNITO",
+        ],
+        "UserPoolId": {
+          "Ref": "CognitoAuthUserPool67837014",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolClient",
+    },
+    "CognitoAuthDummyARecord44621C2F": {
+      "Properties": {
+        "HostedZoneId": "DUMMY",
+        "Name": "demosfelipetrindade.lat.",
+        "ResourceRecords": [
+          "8.8.8.8",
+        ],
+        "TTL": "1800",
+        "Type": "A",
+      },
+      "Type": "AWS::Route53::RecordSet",
+    },
+    "CognitoAuthUserPool67837014": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "CognitoAuthDummyARecord44621C2F",
+      ],
+      "Properties": {
+        "AccountRecoverySetting": {
+          "RecoveryMechanisms": [
+            {
+              "Name": "verified_phone_number",
+              "Priority": 1,
+            },
+            {
+              "Name": "verified_email",
+              "Priority": 2,
+            },
+          ],
+        },
+        "AdminCreateUserConfig": {
+          "AllowAdminCreateUserOnly": true,
+        },
+        "AutoVerifiedAttributes": [
+          "email",
+        ],
+        "EmailVerificationMessage": "The verification code to your new account is {####}",
+        "EmailVerificationSubject": "Verify your new account",
+        "Policies": {
+          "PasswordPolicy": {
+            "MinimumLength": 8,
+            "RequireLowercase": true,
+            "RequireNumbers": true,
+            "RequireSymbols": false,
+            "RequireUppercase": true,
+          },
+        },
+        "SmsVerificationMessage": "The verification code to your new account is {####}",
+        "UsernameAttributes": [
+          "email",
+        ],
+        "VerificationMessageTemplate": {
+          "DefaultEmailOption": "CONFIRM_WITH_CODE",
+          "EmailMessage": "The verification code to your new account is {####}",
+          "EmailSubject": "Verify your new account",
+          "SmsMessage": "The verification code to your new account is {####}",
+        },
+      },
+      "Type": "AWS::Cognito::UserPool",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "CognitoAuthUserPoolDomain0DE3225A": {
+      "DependsOn": [
+        "CognitoAuthDummyARecord44621C2F",
+      ],
+      "Properties": {
+        "CustomDomainConfig": {
+          "CertificateArn": {
+            "Ref": "WildcardCertificate25A2E830",
+          },
+        },
+        "Domain": "auth.demosfelipetrindade.lat",
+        "ManagedLoginVersion": 2,
+        "UserPoolId": {
+          "Ref": "CognitoAuthUserPool67837014",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolDomain",
+    },
+    "CognitoAuthUserPoolDomainCloudFrontDomainName418E469E": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "CognitoAuthDummyARecord44621C2F",
+        "CognitoAuthUserPoolDomainCloudFrontDomainNameCustomResourcePolicyFF229C77",
+      ],
+      "Properties": {
+        "Create": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"CognitoIdentityServiceProvider","action":"describeUserPoolDomain","parameters":{"Domain":"",
+              {
+                "Ref": "CognitoAuthUserPoolDomain0DE3225A",
+              },
+              ""},"physicalResourceId":{"id":"",
+              {
+                "Ref": "CognitoAuthUserPoolDomain0DE3225A",
+              },
+              ""}}",
+            ],
+          ],
+        },
+        "InstallLatestAwsSdk": false,
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AWS679f53fac002430cb0da5b7982bd22872D164C4C",
+            "Arn",
+          ],
+        },
+        "Update": {
+          "Fn::Join": [
+            "",
+            [
+              "{"service":"CognitoIdentityServiceProvider","action":"describeUserPoolDomain","parameters":{"Domain":"",
+              {
+                "Ref": "CognitoAuthUserPoolDomain0DE3225A",
+              },
+              ""},"physicalResourceId":{"id":"",
+              {
+                "Ref": "CognitoAuthUserPoolDomain0DE3225A",
+              },
+              ""}}",
+            ],
+          ],
+        },
+      },
+      "Type": "Custom::UserPoolCloudFrontDomainName",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "CognitoAuthUserPoolDomainCloudFrontDomainNameCustomResourcePolicyFF229C77": {
+      "DependsOn": [
+        "CognitoAuthDummyARecord44621C2F",
+      ],
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "cognito-idp:DescribeUserPoolDomain",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CognitoAuthUserPoolDomainCloudFrontDomainNameCustomResourcePolicyFF229C77",
+        "Roles": [
+          {
+            "Ref": "AWS679f53fac002430cb0da5b7982bd2287ServiceRoleC1EA0FF2",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "EcsCluster72B17558": {
       "Properties": {
         "CapacityProviders": [
@@ -335,12 +599,31 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
       },
       "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
     },
-    "PublicAlbHttpsListenerAuthlessAppRuleRule9D412DB8": {
+    "PublicAlbHttpsListenerAppRuleRuleEE3C13C0": {
       "Properties": {
         "Actions": [
           {
+            "AuthenticateCognitoConfig": {
+              "UserPoolArn": {
+                "Fn::GetAtt": [
+                  "CognitoAuthUserPool67837014",
+                  "Arn",
+                ],
+              },
+              "UserPoolClientId": {
+                "Ref": "CognitoAuthClientDF50989C",
+              },
+              "UserPoolDomain": {
+                "Ref": "CognitoAuthUserPoolDomain0DE3225A",
+              },
+            },
+            "Order": 1,
+            "Type": "authenticate-cognito",
+          },
+          {
+            "Order": 2,
             "TargetGroupArn": {
-              "Ref": "AuthlessAppTargetGroupC33B84FD",
+              "Ref": "AppTargetGroup3D716DB6",
             },
             "Type": "forward",
           },
@@ -412,20 +695,29 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
     "PublicAlbSecurityGroup66576C5F": {
       "Properties": {
         "GroupDescription": "Automatically created Security Group for ELB WorkloadTestStackPublicAlb0DF7AA67",
-        "SecurityGroupIngress": [
+        "SecurityGroupEgress": [
           {
             "CidrIp": "0.0.0.0/0",
-            "Description": "Allow from anyone on port 443",
+            "Description": "Allow to IdP endpoint",
             "FromPort": 443,
             "IpProtocol": "tcp",
             "ToPort": 443,
           },
+        ],
+        "SecurityGroupIngress": [
           {
             "CidrIp": "0.0.0.0/0",
             "Description": "Allow from anyone on port 80",
             "FromPort": 80,
             "IpProtocol": "tcp",
             "ToPort": 80,
+          },
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 443",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
           },
         ],
         "VpcId": {

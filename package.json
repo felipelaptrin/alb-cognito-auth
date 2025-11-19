@@ -4,7 +4,6 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "deploy": "cdk deploy",
     "diff": "cdk diff",
     "synth": "cdk synth",
     "lint": "eslint",
