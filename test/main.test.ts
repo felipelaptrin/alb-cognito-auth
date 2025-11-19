@@ -1,11 +1,12 @@
 import * as cdk from "aws-cdk-lib";
 import "jest-cdk-snapshot";
 
-import { AuthStack } from "../src/stack";
+import { WorkloadStack } from "../src/stack";
+import { devWorkloadConfig } from "../src/config";
 
-test("Snapshot test for AuthStack", () => {
+test("[DEV] Snapshot test for WorkloadStack", () => {
   const app = new cdk.App();
-  const stack = new AuthStack(app, "AuthStackTestStack");
+  const stack = new WorkloadStack(app, "WorkloadTestStack", { config: devWorkloadConfig });
 
   expect(stack).toMatchCdkSnapshot({
     ignoreAssets: true,

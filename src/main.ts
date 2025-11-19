@@ -1,6 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { WorkloadStack } from "./stack";
+import { devWorkloadConfig } from "./config";
 
 const app = new cdk.App();
 
-new WorkloadStack(app, "WorkloadStack", {});
+new WorkloadStack(app, "WorkloadStack", { config: devWorkloadConfig });
