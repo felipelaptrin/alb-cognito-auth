@@ -4,4 +4,4 @@ import { devWorkloadConfig } from "./config";
 
 const app = new cdk.App();
 
-new WorkloadStack(app, "WorkloadStack", { config: devWorkloadConfig });
+new WorkloadStack(app, "DevWorkloadStack", { config: devWorkloadConfig });
