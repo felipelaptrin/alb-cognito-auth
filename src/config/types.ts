@@ -2,7 +2,7 @@ export type Environment = "dev" | "prod";
 
 export enum AwsAccount {
   ManagementAccount = "937168356724",
-  Development = "869935103835",
+  Development = "911167928887",
 }
 
 export type WorkloadConfig = {
@@ -12,6 +12,7 @@ export type WorkloadConfig = {
   };
   vpcCidrBlock: string;
   maxAzs: number;
+  domainName: string;
 };
 
 export type ManagementConfig = {
