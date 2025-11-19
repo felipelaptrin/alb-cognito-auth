@@ -7,4 +7,6 @@ export const config: WorkloadConfig = {
   },
   vpcCidrBlock: "10.5.0.0/6",
   maxAzs: 2,
+  domainName: "sandbox.lokadevops.com",
+  appSubdomain: "app",
 };

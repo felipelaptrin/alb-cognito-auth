@@ -5,7 +5,9 @@ import { WorkloadConfig } from "./config";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as alb from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
-import { IPublicHostedZone, PublicHostedZone } from "aws-cdk-lib/aws-route53";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as route53Targets from "aws-cdk-lib/aws-route53-targets";
+import * as iam from "aws-cdk-lib/aws-iam";
 
 export interface NetworkStackProps extends cdk.StackProps {
   config: WorkloadConfig;
@@ -13,20 +15,21 @@ export interface NetworkStackProps extends cdk.StackProps {
 
 export class WorkloadStack extends cdk.Stack {
   config: WorkloadConfig;
-  domain: IPublicHostedZone;
+  domain: route53.IPublicHostedZone;
 
   constructor(scope: Construct, id: string, props: NetworkStackProps) {
     super(scope, id, props);
 
     this.config = props.config;
-    this.domain = PublicHostedZone.fromLookup(this, "PublicHostedZone", {
+    this.domain = route53.PublicHostedZone.fromLookup(this, "PublicHostedZone", {
       domainName: props.config.domainName,
     });
 
     const vpc = this.createVpc();
 
-    this.createEcsCluster(vpc);
-    this.createPublicAlb(vpc);
+    const cluster = this.createEcsCluster(vpc);
+    const { publicAlb, httpsListener } = this.createPublicAlb(vpc);
+    this.createAuthlessFargateApp(vpc, cluster, publicAlb, httpsListener);
   }
 
   createVpc(): ec2.Vpc {
@@ -76,6 +79,7 @@ export class WorkloadStack extends cdk.Stack {
       vpcSubnets: vpc.selectSubnets({
         subnetType: ec2.SubnetType.PUBLIC,
       }),
+      internetFacing: true,
     });
     const httpsListener = publicAlb.addListener("HttpsListener", {
       protocol: alb.ApplicationProtocol.HTTPS,
@@ -92,5 +96,60 @@ export class WorkloadStack extends cdk.Stack {
       publicAlb,
       httpsListener,
     };
+  }
+
+  createAuthlessFargateApp(
+    vpc: ec2.Vpc,
+    cluster: ecs.Cluster,
+    publicAlb: alb.ApplicationLoadBalancer,
+    httpsListener: alb.ApplicationListener,
+  ) {
+    const FULL_APP_HOST = `${this.config.appSubdomain}.${this.config.domainName}`;
+
+    const taskDefinition = new ecs.TaskDefinition(this, "AuthlessAppTaskDefinition", {
+      cpu: "512",
+      memoryMiB: "1024",
+      compatibility: ecs.Compatibility.FARGATE,
+    });
+    taskDefinition.addContainer("nginx", {
+      portMappings: [{ containerPort: 80 }],
+      image: ecs.ContainerImage.fromRegistry("nginx:latest"),
+      logging: ecs.LogDriver.awsLogs({
+        streamPrefix: "nginx",
+      }),
+    });
+
+    const fargateService = new ecs.FargateService(this, "AuthlessFargateService", {
+      cluster,
+      taskDefinition: taskDefinition,
+      desiredCount: 1,
+      assignPublicIp: false,
+      vpcSubnets: vpc.selectSubnets({
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      }),
+    });
+    fargateService.taskDefinition.executionRole?.addManagedPolicy(
+      iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"),
+    );
+
+    const targetGroup = new alb.ApplicationTargetGroup(this, "AuthlessAppTargetGroup", {
+      vpc,
+      targetType: alb.TargetType.IP,
+      protocol: alb.ApplicationProtocol.HTTP,
+      port: 80,
+      targets: [fargateService],
+      deregistrationDelay: cdk.Duration.seconds(10),
+    });
+    httpsListener.addAction("AuthlessAppRule", {
+      priority: 1,
+      action: alb.ListenerAction.forward([targetGroup]),
+      conditions: [alb.ListenerCondition.hostHeaders([FULL_APP_HOST])],
+    });
+
+    new route53.ARecord(this, "AuthlessAppRecord", {
+      target: route53.RecordTarget.fromAlias(new route53Targets.LoadBalancerTarget(publicAlb)),
+      zone: this.domain,
+      recordName: FULL_APP_HOST,
+    });
   }
 }

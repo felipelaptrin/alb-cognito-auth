@@ -13,6 +13,7 @@ export type WorkloadConfig = {
   vpcCidrBlock: string;
   maxAzs: number;
   domainName: string;
+  appSubdomain: string;
 };
 
 export type ManagementConfig = {
