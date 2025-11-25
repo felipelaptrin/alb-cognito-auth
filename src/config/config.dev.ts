@@ -9,12 +9,6 @@ export const config: WorkloadConfig = {
   maxAzs: 2,
   domainName: "demosfelipetrindade.lat",
   appSubdomain: "app",
-  // oidc: {
-  //   issuer: "https://sso.us-east-1.amazonaws.com/12345678901234567890",
-  //   authorizationEndpoint: "https://login.sso.us-east-1.amazonaws.com/oauth2/authorize",
-  //   tokenEndpoint: "https://login.sso.us-east-1.amazonaws.com/oauth2/token",
-  //   userInfoEndpoint: "https://login.sso.us-east-1.amazonaws.com/oauth2/userInfo",
-  //   clientId: "your-client-id",
-  //   clientSecretArn: "arn:aws:secretsmanager:us-east-1:937168356724:secret:oidc-client-secret",
-  // },
+  samlMetadataUrl:
+    "https://portal.sso.us-east-1.amazonaws.com/saml/metadata/OTM3MTY4MzU2NzI0X2lucy03MjIzMzc5Yjk5NDI5MDgz",
 };

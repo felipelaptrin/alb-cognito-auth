@@ -143,8 +143,17 @@ export class WorkloadStack extends cdk.Stack {
     });
     userPoolDomain.node.addDependency(dummyARecordParentDomain);
 
+    const samlProviderName = "AuthlessFargateApp";
+    let supportedIdentityProviders;
+    if (this.config.samlMetadataUrl) {
+      supportedIdentityProviders = [cognito.UserPoolClientIdentityProvider.custom(samlProviderName)];
+    } else {
+      supportedIdentityProviders = [cognito.UserPoolClientIdentityProvider.COGNITO];
+    }
+
     const userPoolClient = new cognito.UserPoolClient(this, "CognitoAuthClient", {
       userPool,
+      supportedIdentityProviders,
       oAuth: {
         flows: {
           authorizationCodeGrant: true,
@@ -158,7 +167,6 @@ export class WorkloadStack extends cdk.Stack {
         logoutUrls: [`https://${this.config.appSubdomain}.${this.config.domainName}`],
       },
       generateSecret: true,
-      supportedIdentityProviders: [cognito.UserPoolClientIdentityProvider.COGNITO],
     });
 
     new route53.ARecord(this, "CognitoAuthAliasRecord", {
@@ -166,6 +174,17 @@ export class WorkloadStack extends cdk.Stack {
       recordName: COGNITO_DOMAIN,
       target: route53.RecordTarget.fromAlias(new route53Targets.UserPoolDomainTarget(userPoolDomain)),
     });
+
+    if (this.config.samlMetadataUrl) {
+      new cognito.UserPoolIdentityProviderSaml(this, "SamlProvider", {
+        userPool,
+        name: samlProviderName,
+        metadata: cognito.UserPoolIdentityProviderSamlMetadata.url(this.config.samlMetadataUrl),
+        attributeMapping: {
+          email: cognito.ProviderAttribute.other("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"),
+        },
+      });
+    }
 
     return {
       userPool,
