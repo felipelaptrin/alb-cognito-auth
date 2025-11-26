@@ -1,4 +1,6 @@
-# Auth Proxy
+# ALB-Cognito Auth
+
+This is demo repository for my `Using ALB and Cognito to add authentication to your apps` [blog post](https://felipetrindade.com/alb-auth-cognito).
 
 ## How to deploy
 
@@ -10,7 +12,7 @@ You can use [mise](https://mise.jdx.dev/) to install all developer dependencies.
 mise install
 ```
 
-Then, install nodeJS dependencies:
+Then, install NodeJS dependencies:
 
 ```sh
 yarn
@@ -20,15 +22,15 @@ yarn
 
 3) Change the config values to fit your use-case
 
-Change the `src/config/config.dev.ts` to fit your use-case. The parameter `samlMetadataUrl` is optional and if not provided the authentication will be via Cognito User Pool, otherwise, if the parameter is passed the authentication will be via SAML 2.0 using IAM Identity Center as IdP.
+Change the `src/config/config.dev.ts` to fit your use case. The parameter `samlMetadataUrl` is optional, and if not provided, the authentication will be via Cognito User Pool; otherwise, if the parameter is passed, the authentication will be via SAML 2.0 using IAM Identity Center as IdP.
 
-:warning: The AWS [does not support creating Identity Center applications](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sso-application.html#cfn-sso-application-status) programatically, meaning that the application should be created manually. I suggest first deploying the application without the `samlMetadataUrl` parameter, then proceding to add it. This will be explained on the following steps.
+:warning: The AWS [does not support creating Identity Center applications](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-sso-application.html#cfn-sso-application-status) programatically, meaning that the application should be created manually. I suggest first deploying the application without the `samlMetadataUrl` parameter, then proceeding to add it. This will be explained in the following steps.
 
 4) Go to your application endpoint and check if it's redirecting you to log in via Cognito User Pool.
 
 ![Cognito User Pool login](./docs/login-cognito.png)
 
-You can create a user in the user pool and validate that this user can actually login in the application.
+You can create a user in the user pool and validate that this user can actually log in to the application.
 
 5) Deploy the `DevWorkloadStack`
 
@@ -54,13 +56,13 @@ After the deployment, go to the AWS Console > CloudFormation > `DevWorkloadStack
 - The `Application ACS URL` should be set to: `https://{appSubdomain}.{domainName}/saml2/idpresponse`. The Cognito [documentation](https://docs.aws.amazon.com/cognito/latest/developerguide/saml2-idpresponse-endpoint.html) specificies the `/saml2/idpresponse` path.
 - The `Application SAML audience` should be set to: `urn:amazon:cognito:sp:{awsRegion}:{userPoolId}` based on the Cognito [documentation](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-integrating-3rd-party-saml-providers.html).
 
-Make sure to substitute the variable in the brackets to the correct value:
+Make sure to substitute the variable in the brackets with the correct value:
 - `{appSubdomain}`: The value used in your `src/config/config.dev.ts` file
 - `{domainName}`: The value used in your `src/config/config.dev.ts` file
 - `{awsRegion}`: The value used in your `src/config/config.dev.ts` file (env.region).
 - `{userPoolId}`: The value you copied on step 4.
 
-Copy the `IAM Identity Center SAML metadata Url` to use on the following step.
+Copy the `IAM Identity Center SAML metadata URL` to use in the following step.
 
 9) Edit attribute mapping
 
@@ -84,10 +86,10 @@ yarn cdk deploy DevWorkloadStack
 
 12) Go to your application endpoint and check if it's redirecting you to log in via Identity Center.
 
-:warning: Even after the deployment is successful, it might take a couple of minutes Cognito redirect to Identity Center.
+:warning: Even after the deployment is successful, it might take a couple of minutes for Cognito to redirect to Identity Center.
 
 ![Identity Center Login](./docs/identity-center-login.png)
 
-13) Check if application is accessible after the log in
+13) Check if the application is accessible after the login
 
 ![Application page](./docs/application.png)
