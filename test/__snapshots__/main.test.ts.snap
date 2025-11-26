@@ -387,7 +387,7 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
           "https://app.demosfelipetrindade.lat",
         ],
         "SupportedIdentityProviders": [
-          "COGNITO",
+          "AuthlessFargateApp",
         ],
         "UserPoolId": {
           "Ref": "CognitoAuthUserPool67837014",
@@ -746,6 +746,23 @@ exports[`[DEV] Snapshot test for WorkloadStack 1`] = `
         "ToPort": 80,
       },
       "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "SamlProviderEF1785FE": {
+      "Properties": {
+        "AttributeMapping": {
+          "email": "email",
+        },
+        "ProviderDetails": {
+          "IDPSignout": false,
+          "MetadataURL": "https://portal.sso.us-east-1.amazonaws.com/saml/metadata/OTM3MTY4MzU2NzI0X2lucy03MjIzMGJjNWY5MDQzYzVj",
+        },
+        "ProviderName": "AuthlessFargateApp",
+        "ProviderType": "SAML",
+        "UserPoolId": {
+          "Ref": "CognitoAuthUserPool67837014",
+        },
+      },
+      "Type": "AWS::Cognito::UserPoolIdentityProvider",
     },
     "Vpc8378EB38": {
       "Properties": {
