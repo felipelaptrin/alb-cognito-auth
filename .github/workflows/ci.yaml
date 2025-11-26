@@ -1,0 +1,28 @@
+name: "CDK"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  cdk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: jdx/mise-action@v3
+        with:
+          cache: true
+
+      - name: Install nodeJS dependencies
+        run: yarn install --frozen-lockfile
+
+      - run: yarn lint
+
+      - run: yarn prettier
+
+      - run: yarn synth
+
+      - run: yarn test
