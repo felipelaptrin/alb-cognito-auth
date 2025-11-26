@@ -181,7 +181,7 @@ export class WorkloadStack extends cdk.Stack {
         name: samlProviderName,
         metadata: cognito.UserPoolIdentityProviderSamlMetadata.url(this.config.samlMetadataUrl),
         attributeMapping: {
-          email: cognito.ProviderAttribute.other("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"),
+          email: cognito.ProviderAttribute.other("email"),
         },
       });
     }

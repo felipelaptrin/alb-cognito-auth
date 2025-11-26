@@ -10,5 +10,5 @@ export const config: WorkloadConfig = {
   domainName: "demosfelipetrindade.lat",
   appSubdomain: "app",
   samlMetadataUrl:
-    "https://portal.sso.us-east-1.amazonaws.com/saml/metadata/OTM3MTY4MzU2NzI0X2lucy03MjIzMzc5Yjk5NDI5MDgz",
+    "https://portal.sso.us-east-1.amazonaws.com/saml/metadata/OTM3MTY4MzU2NzI0X2lucy03MjIzMGJjNWY5MDQzYzVj",
 };
