@@ -23,6 +23,4 @@ jobs:
 
       - run: yarn prettier
 
-      - run: yarn synth
-
       - run: yarn test
