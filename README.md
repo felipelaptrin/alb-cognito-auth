@@ -91,13 +91,3 @@ yarn cdk deploy DevWorkloadStack
 13) Check if application is accessible after the log in
 
 ![Application page](./docs/application.png)
-
-
-I was following: https://aws.amazon.com/blogs/security/how-to-implement-trusted-identity-propagation-for-applications-protected-by-amazon-cognito/
-
-
-
-
-Application start URL: https://app.demosfelipetrindade.lap
-Application ACS URL: https://auth.demosfelipetrindade.lat/saml2/idpresponse
-Application SAML audience: urn:amazon:cognito:sp:us-east-1_00vmtTN4Z
